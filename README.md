@@ -25,3 +25,6 @@ You can contribute to this project or contact me to add more features.
 
 ## Nuget package
 You can find a nuget package here : [Ph.WinRtFileHelper](https://www.nuget.org/packages/Ph.WinRtFileHelper/) 
+
+### Author
+[Pierre-Henri Nogues](http://www.pierrehenri.fr/)
