@@ -25,14 +25,23 @@
         <TextBlock Grid.Row="0" Text="WinRt FileHelper" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Chartreuse" FontSize="24" FontWeight="Bold"></TextBlock>
         <ScrollViewer Grid.Row="1">
             <StackPanel  HorizontalAlignment="Center">
-                <TextBlock Style="{StaticResource titleStyle}">FileExists or FolderExists</TextBlock>
+                <TextBlock Style="{StaticResource titleStyle}">FileExists / FolderExists</TextBlock>
                 <Button Name="btnFileExistsTrue" Click="btnFileExistsTrue_Click" HorizontalAlignment="Center">FileExists() = true</Button>
                 <Button Name="btnFileExistsFalse" Click="btnFileExistsFalse_Click" HorizontalAlignment="Center">FileExists() = false</Button>
 
-                <TextBlock Style="{StaticResource titleStyle}">Read Write</TextBlock>
+                <TextBlock Style="{StaticResource titleStyle}">Read / Write</TextBlock>
                 <Button Name="btnWrite" Click="btnWrite_Click" HorizontalAlignment="Center">Write</Button>
                 <Button Name="btnRead" Click="btnRead_Click" HorizontalAlignment="Center">Read</Button>
-                
+
+                <TextBlock Style="{StaticResource titleStyle}">Zip / Unzip</TextBlock>
+                <Button Name="btnZip" Click="btnZip_Click" HorizontalAlignment="Center">Zip</Button>
+                <Button Name="btnUnzip" Click="btnUnzip_Click" HorizontalAlignment="Center">Unzip</Button>
+
+                <TextBlock Style="{StaticResource titleStyle}">Enumeration</TextBlock>
+                <Button Name="btnEnumerateFiles" Click="btnEnumerateFiles_Click" HorizontalAlignment="Center">Enumerate Files</Button>
+                <Button Name="btnSubfolders" Click="btnSubfolders_Click" HorizontalAlignment="Center">Get SubFolders</Button>
+
+                <Button Name="btnInit" Click="btnInit_Click" HorizontalAlignment="Center" Margin="0,40,0,0">Init demo folders and files</Button>
             </StackPanel>
         </ScrollViewer>
     </Grid>

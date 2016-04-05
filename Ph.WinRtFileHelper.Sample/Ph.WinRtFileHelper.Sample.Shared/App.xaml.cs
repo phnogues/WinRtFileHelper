@@ -42,12 +42,26 @@ namespace Ph.WinRtFileHelper.Sample
             InitDemoFiles();
         }
 
-        private async void InitDemoFiles()
+        public static async void InitDemoFiles(bool force = false)
         {
+            if (force)
+            {
+                StorageFolder demoFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("DemoFiles", CreationCollisionOption.OpenIfExists);
+                await demoFolder.DeleteAsync();
+            }
+
             if (!(await FileHelper.FolderExistsAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, "DemoFiles"))))
             {
                 StorageFolder destinationFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("DemoFiles", CreationCollisionOption.OpenIfExists);
+                await destinationFolder.CreateFolderAsync("Zip");
+                await destinationFolder.CreateFolderAsync("Folder 1");
+                await destinationFolder.CreateFolderAsync("Folder 2");
+                await destinationFolder.CreateFolderAsync("Folder 3");
+
                 StorageFile txtOne = await destinationFolder.CreateFileAsync("1.txt");
+                await destinationFolder.CreateFileAsync("2.txt");
+                await destinationFolder.CreateFileAsync("3.txt");
+                await destinationFolder.CreateFileAsync("4.txt");
 
                 await FileHelper.WriteToFileAsync(txtOne, "<file>Content</file>");
             }

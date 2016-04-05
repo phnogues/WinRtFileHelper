@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using System.Xml.Serialization;
     using Windows.Storage;
-    using Windows.Storage.Search;
     using Windows.Storage.Streams;
 
     public class FileHelper
@@ -95,7 +94,7 @@
         /// <param name="filePath">The file path.</param>
         /// <param name="isAssets">Indicates if the file is a local asset</param>
         /// <returns>A stream</returns>
-        public static async Task<string> GetContentFromFile(string filePath, bool isAssets = false)
+        public static async Task<string> GetContentFromFileAsync(string filePath, bool isAssets = false)
         {
             string content = string.Empty;
 
@@ -132,7 +131,24 @@
             var folder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(pathFile).AsTask().ConfigureAwait(false);
             var file = await folder.GetFileAsync(fileName).AsTask().ConfigureAwait(false);
 
-            return await ConvertStorageFileToBase64String(file).ConfigureAwait(false);
+            return await ConvertStorageFileToBase64StringAsync(file).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Writes to file.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="content">The content.</param>
+        /// <returns></returns>
+        public static async Task WriteToFileAsync(StorageFile file, string content)
+        {
+            using (Stream stream = await file.OpenStreamForWriteAsync())
+            {
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    writer.Write(content);
+                }
+            }
         }
 
         /// <summary>
@@ -140,7 +156,7 @@
         /// </summary>
         /// <param name="File">The storage file.</param>
         /// <returns>A bytes array</returns>
-        public static async Task<byte[]> ConvertStorageFileToBase64String(StorageFile File)
+        public static async Task<byte[]> ConvertStorageFileToBase64StringAsync(StorageFile File)
         {
             var stream = await File.OpenReadAsync().AsTask().ConfigureAwait(false);
 
@@ -155,20 +171,66 @@
         }
 
         /// <summary>
-        /// Enumerates the files.
+        /// Enumerates the files from a folder.
+        /// </summary>
+        /// <param name="folder">The folder.</param>
+        /// <returns>A StorageFile list</returns>
+        public async static Task<IReadOnlyList<StorageFile>> EnumerateFilesAsync(StorageFolder folder)
+        {
+            return await folder.GetFilesAsync().AsTask().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Enumerates the files path from a folder.
+        /// </summary>
+        /// <param name="folder">The folder.</param>
+        /// <returns></returns>
+        public async static Task<List<string>> EnumerateFilesPathAsync(StorageFolder folder)
+        {
+            var files = await folder.GetFilesAsync().AsTask().ConfigureAwait(false);
+            return files.Select(f => f.Path).ToList();
+        }
+
+        /// <summary>
+        /// Enumerates the files path.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>The path of each files</returns>
-        public async static Task<List<string>> EnumerateFiles(string parentFolderPath)
+        public async static Task<List<string>> EnumerateFilesPathAsync(string parentFolderPath)
         {
-            List<string> folders = new List<string>();
+            List<string> filesPath = new List<string>();
 
             var mainFolder = await StorageFolder.GetFolderFromPathAsync(parentFolderPath).AsTask().ConfigureAwait(false);
-            var subFolders = await mainFolder.GetFilesAsync().AsTask().ConfigureAwait(false);
+            var files = await mainFolder.GetFilesAsync().AsTask().ConfigureAwait(false);
 
-            folders = subFolders.Select(f => f.Path).ToList();
+            filesPath = files.Select(f => f.Path).ToList();
 
-            return folders;
+            return filesPath;
+        }
+
+        /// <summary>
+        /// Gets the sub folders.
+        /// </summary>
+        /// <param name="parentFolderPath">The parent folder path.</param>
+        /// <returns></returns>
+        public async static Task<IReadOnlyList<StorageFolder>> GetSubFoldersAsync(StorageFolder parentFolder)
+        {
+            var subFolders = await parentFolder.GetFoldersAsync().AsTask().ConfigureAwait(false);
+
+            return subFolders;
+        }
+
+        /// <summary>
+        /// Gets the sub folders.
+        /// </summary>
+        /// <param name="parentFolderPath">The parent folder path.</param>
+        /// <returns></returns>
+        public async static Task<IReadOnlyList<StorageFolder>> GetSubFoldersAsync(string parentFolderPath)
+        {
+            var mainFolder = await StorageFolder.GetFolderFromPathAsync(parentFolderPath).AsTask().ConfigureAwait(false);
+            var subFolders = await mainFolder.GetFoldersAsync().AsTask().ConfigureAwait(false);
+
+            return subFolders;
         }
 
         /// <summary>
@@ -176,13 +238,11 @@
         /// </summary>
         /// <param name="parentFolderPath">The parent folder path.</param>
         /// <returns></returns>
-        public async static Task<List<string>> GetSubFoldersPath(string parentFolderPath)
+        public async static Task<List<string>> GetSubFoldersPathAsync(string parentFolderPath)
         {
             List<string> folders = new List<string>();
 
-            var mainFolder = await StorageFolder.GetFolderFromPathAsync(parentFolderPath).AsTask().ConfigureAwait(false);
-            var subFolders = await mainFolder.GetFoldersAsync().AsTask().ConfigureAwait(false);
-
+            var subFolders = await GetSubFoldersAsync(parentFolderPath);
             folders = subFolders.Select(f => f.Path).ToList();
 
             return folders;
@@ -193,13 +253,11 @@
         /// </summary>
         /// <param name="parentFolderPath">The parent folder path.</param>
         /// <returns></returns>
-        public async static Task<List<string>> GetSubFoldersNames(string parentFolderPath)
+        public async static Task<List<string>> GetSubFoldersNamesAsync(string parentFolderPath)
         {
             List<string> folders = new List<string>();
 
-            var mainFolder = await StorageFolder.GetFolderFromPathAsync(parentFolderPath).AsTask().ConfigureAwait(false);
-            var subFolders = await mainFolder.GetFoldersAsync().AsTask().ConfigureAwait(false);
-
+            var subFolders = await GetSubFoldersAsync(parentFolderPath);
             folders = subFolders.Select(f => f.Name).ToList();
 
             return folders;
@@ -231,23 +289,6 @@
             stream.Dispose();
 
             return result;
-        }
-
-        /// <summary>
-        /// Writes to file.
-        /// </summary>
-        /// <param name="file">The file.</param>
-        /// <param name="content">The content.</param>
-        /// <returns></returns>
-        public static async Task WriteToFileAsync(StorageFile file, string content)
-        {
-            using (Stream stream = await file.OpenStreamForWriteAsync())
-            {
-                using (StreamWriter writer = new StreamWriter(stream))
-                {
-                    writer.Write(content);
-                }
-            }
         }
     }
 }
